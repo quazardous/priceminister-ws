@@ -1,0 +1,12 @@
+{
+	"name" : "quazardous/priceminister-ws",
+	"licence" : "MIT",
+	"require" : {
+		"stil/curl-easy" : "*"
+	},
+	"autoload" : {
+		"psr-4" : {
+			"Quazardous\\PriceministerWs\\" : "src/"
+		}
+	}
+}
