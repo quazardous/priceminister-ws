@@ -15,19 +15,19 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
     /**
      * @depends testClient
      */
-    public function testClientDefaultOptionBaseUrl(Client $client)
+    public function testClientDefaultOptionTimeout(Client $client)
     {
-        $this->assertEquals('https://ws.priceminister.com/', $client->getOption('base_url'));
+        $this->assertEquals(10, $client->getDefaultOption('timeout'));
     }
 
     /**
      * @depends testClient
      */
-    public function testClientSetOption(Client $client)
+    public function testClientSetDefaultOption(Client $client)
     {
         $v = rand();
-        $client->setOption('test', $v);
-        $this->assertEquals($v, $client->getOption('test'));
+        $client->setDefaultOption('test', $v);
+        $this->assertEquals($v, $client->getDefaultOption('test'));
     }
     
     /**
@@ -41,6 +41,20 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Quazardous\\PriceministerWs\\Request\\ProductListingRequest', $request);
         $client->request($request);
     }
+
+    /**
+     * @depends testClient
+     * @expectedException           InvalidArgumentException
+     * @expectedExceptionMessage    pwd is not a scalar value
+     */
+    public function testClientBadRequestNonScalarPassword(Client $client)
+    {
+        $request = new ProductListingRequest();
+        $request->setParameter('login', PRICEMINISTER_LOGIN);
+        $request->setParameter('pwd', array(PRICEMINISTER_PWD . 'not_good'));
+        $request->setParameter('version', PRICEMINISTER_PRODUCT_LISTING_VERSION);
+        $client->request($request);
+    }    
     
     /**
      * @depends testClient
@@ -95,6 +109,24 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
     /**
      * @depends testClient
      */
+    public function testClientGoodRequestArrayOfRefs(Client $client)
+    {
+        $refs = array(9780747595823, 9780552167239);
+        $request = new ProductListingRequest();
+        $request->setParameter('login', PRICEMINISTER_LOGIN);
+        $request->setParameter('pwd', PRICEMINISTER_PWD);
+        $request->setParameter('version', PRICEMINISTER_PRODUCT_LISTING_VERSION);
+        $request->setParameter('refs', $refs);
+        $response = $client->request($request);
+        $this->assertEquals(implode(',', $refs), $request->getParameter('refs'));
+        $this->assertInstanceOf('Quazardous\PriceministerWs\Response\BasicResponse', $response);
+        $this->assertContains('Harry Potter And The Deathly Hallows', $response->getRawBody());
+        $this->assertContains('The Long Earth', $response->getRawBody());
+    }
+    
+    /**
+     * @depends testClient
+     */
     public function testClientGoodRequestXmlUtf8(Client $client)
     {
         $request = new ProductListingRequest();
@@ -127,17 +159,16 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
     }
     
     /**
-     * MUST BE LAST
      * @depends testClient
      * @expectedException           Quazardous\PriceministerWs\CurlException
      * @expectedExceptionMessage    Could not resolve host: __not_existing_domain__.not
      */
     public function testClientBadRequestBadUrl(Client $client)
     {
-        $client->setOption('base_url', 'https://__not_existing_domain__.not/');
         $request = new ProductListingRequest();
+        $request->setOption('url', 'https://__not_existing_domain__.not/');
         $request->setParameter('login', PRICEMINISTER_LOGIN);
-        $request->setParameter('pwd', PRICEMINISTER_PWD . 'not_good');
+        $request->setParameter('pwd', PRICEMINISTER_PWD);
         $request->setParameter('version', PRICEMINISTER_PRODUCT_LISTING_VERSION);
         $client->request($request);
     }

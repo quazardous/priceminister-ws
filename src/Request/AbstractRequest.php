@@ -1,17 +1,47 @@
 <?php
 namespace Quazardous\PriceministerWs\Request;
 
+use cURL\Request as CurlRequest;
+use Quazardous\PriceministerWs\ApiException;
+use Quazardous\PriceministerWs\CurlException;
+use Quazardous\PriceministerWs\Response\BasicResponse;
+
 abstract class AbstractRequest {
-    protected $parameters = array();
-    protected $path;
+    protected $options = array();
+    /**
+     * Set the options.
+     * @param array $options
+     * @param boolean $default : the given options are default values, existing values will precede.
+     */
+    public function setOptions(array $options, $default = false) {
+        if ($default) {
+            $this->options = array_merge($options, $this->options);
+        }
+        else {
+            $this->options = array_merge($this->options, $options);
+        }
+    }
     
     /**
-     * Return path.
+     * Set a given option value.
+     * 
+     * @param string $key
+     * @param mixed $value
      */
-    public function getPath() {
-        return $this->path;
+    public function setOption($key, $value) {
+        $this->options[$key] = $value;
     }
-
+    
+    /**
+     * Get a given option.
+     * @param string $key
+     * @return mixed
+     */
+    public function getOption($key) {
+        return $this->options[$key];
+    }
+    
+    protected $parameters = array();
     /**
      * Set the parameters.
      * @param array $parameters
@@ -39,11 +69,18 @@ abstract class AbstractRequest {
      *
      * @param string $key
      * @param string $value
-     * @param boolean $default : the given parameter is default value, existing value will precede.
      */
-    public function setParameter($key, $value, $default = false) {
-        if (isset($this->parameters[$key]) && $default) return;
+    public function setParameter($key, $value) {
         $this->parameters[$key] = $value;
+    }
+    
+    /**
+     * Get a given parameter value.
+     * @param string $key
+     * @return string
+     */
+    public function getParameter($key) {
+        return $this->parameters[$key];
     }
     
     /**
@@ -56,5 +93,60 @@ abstract class AbstractRequest {
     /**
      * Validate the parameters.
      */
-    abstract public function validate();
+    public function validate() {
+        foreach ($this->parameters as $key => &$value) {
+            if (!(is_scalar($value) || is_null($value))) {
+                throw new \InvalidArgumentException("$key is not a scalar value");
+            }
+            $value = (string)$value;
+        }
+        
+    }
+    
+    /**
+     * Execute the request.
+     * @throws CurlException
+     * @throws \RuntimeException
+     * @throws ApiException
+     * @return \Quazardous\PriceministerWs\Response\BasicResponse
+     */
+    public function execute() {
+        $url = $this->getOption('url') . '?' . http_build_query($this->getParameters());
+        $curl = new CurlRequest($url);
+        $curl->getOptions()
+            ->set(CURLOPT_TIMEOUT, $this->getOption('timeout'))
+            ->set(CURLOPT_RETURNTRANSFER, true)
+            ->set(CURLOPT_HEADER, true);
+        $curlResponse = $curl->send();
+        
+        if ($curlResponse->hasError()) {
+            $error = $curlResponse->getError();
+            throw new CurlException($error ? $error->getMessage() : 'Unkown exception', $error ? $error->getCode() : null);
+        }
+        
+        $content = $curlResponse->getContent();
+        
+        $header_size = $curlResponse->getInfo(CURLINFO_HEADER_SIZE);
+        
+        $header = substr($content, 0, $header_size);
+        $body = substr($content, $header_size);
+         
+        $start = substr($body, 0, 256);
+        
+        $matches = null;
+        if (preg_match( '@<\?xml[^>]+encoding="[^\s"]+[^?]*\?>\s*<errorresponse@si', $start, $matches )) {
+            $xml = simplexml_load_string($body);
+            if ($xml === false) {
+                throw new \RuntimeException('Response content is no valid XML');
+            }
+            $details = array();
+            if ($xml->error->details->detail) {
+                foreach ($xml->error->details->detail as $detail) {
+                    $details[] = (string) $detail;
+                }
+            }
+            throw new ApiException($xml->error->message, $xml->error->type, $xml->error->code, $details);
+        }
+        return new BasicResponse($header, $body);
+    }
 }
