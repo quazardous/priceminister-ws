@@ -13,7 +13,7 @@ https://developer.priceminister.com/blog/en/documentation/product-data/product-l
 ```json
 ...
 require : {
-    "quazardous/priceminister-ws" : "*@dev",
+    "quazardous/priceminister-ws" : "*@dev"
 }
 ...
 ```
