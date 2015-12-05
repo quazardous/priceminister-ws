@@ -5,7 +5,8 @@ Ongoing work to access Priceminister Webservices.
 https://developer.priceminister.com
 
 ## Working API functions
-- Product Listing
+### Product Listing
+https://developer.priceminister.com/blog/en/documentation/product-data/product-listing-secure
 
 ## Install
 
