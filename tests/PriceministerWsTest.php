@@ -39,7 +39,7 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
     {
         $request = new ProductListingRequest();
         $this->assertInstanceOf('Quazardous\\PriceministerWs\\Request\\ProductListingRequest', $request);
-        $client->requestProductListing($request);
+        $client->request($request);
     }
     
     /**
@@ -53,7 +53,7 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
         $request->setParameter('login', PRICEMINISTER_LOGIN);
         $request->setParameter('pwd', PRICEMINISTER_PWD . 'not_good');
         $request->setParameter('version', PRICEMINISTER_PRODUCT_LISTING_VERSION);
-        $client->requestProductListing($request);
+        $client->request($request);
     }
 
     /**
@@ -66,7 +66,7 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
         $request->setParameter('pwd', PRICEMINISTER_PWD);
         $request->setParameter('version', PRICEMINISTER_PRODUCT_LISTING_VERSION);
         try {
-            $client->requestProductListing($request);
+            $client->request($request);
             $this->assertTrue(false);
         }
         catch(Quazardous\PriceministerWs\ApiException $e) {
@@ -87,7 +87,7 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
         $request->setParameter('pwd', PRICEMINISTER_PWD);
         $request->setParameter('version', PRICEMINISTER_PRODUCT_LISTING_VERSION);
         $request->setParameter('refs', 9780747595823);
-        $xml = $client->requestProductListing($request, true);
+        $xml = $client->request($request, true);
         $this->assertContains('Harry Potter And The Deathly Hallows', $xml);
     }
     
@@ -101,7 +101,7 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
         $request->setParameter('pwd', PRICEMINISTER_PWD);
         $request->setParameter('version', PRICEMINISTER_PRODUCT_LISTING_VERSION);
         $request->setParameter('refs', 9780747595823);
-        $xml = $client->requestProductListing($request);
+        $xml = $client->request($request);
         $this->assertInstanceOf('SimpleXMLElement', $xml);
         $string = $xml->asXML();
         $this->assertRegExp('@<\?xml[^>]+encoding="UTF-8"[^?]*\?>@si', substr($string, 0, 128));
@@ -120,7 +120,7 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
         $request = new ProductListingRequest();
         $request->setParameter('kw', 'azerty');
         $request->setParameter('version', PRICEMINISTER_PRODUCT_LISTING_VERSION);
-        $client->requestProductListing($request);
+        $client->request($request);
     }
     
     /**
@@ -136,7 +136,7 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
         $request->setParameter('login', PRICEMINISTER_LOGIN);
         $request->setParameter('pwd', PRICEMINISTER_PWD . 'not_good');
         $request->setParameter('version', PRICEMINISTER_PRODUCT_LISTING_VERSION);
-        $client->requestProductListing($request);
+        $client->request($request);
     }
 
 }

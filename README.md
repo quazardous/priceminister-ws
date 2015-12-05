@@ -17,3 +17,18 @@ require : {
 }
 ...
 ```
+
+## Usage
+
+```php
+use Quazardous\PriceministerWs\Client;
+use Quazardous\PriceministerWs\Request\ProductListingRequest;
+
+$client = new Client();
+$request = new ProductListingRequest();
+$request->setParameter('login', '***');
+$request->setParameter('pwd', '***');
+$request->setParameter('version', '2015-07-05');
+$request->setParameter('refs', 9780747595823);
+$xml = $client->request($request);
+```

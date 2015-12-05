@@ -61,7 +61,7 @@ class Client {
      * @throws \RuntimeException
      * @throws ApiException
      */
-    protected function request(AbstractRequest $request, $raw = false) {
+    public function request(AbstractRequest $request, $raw = false) {
         $request->setParameters($this->defaultParameters, true);
         $request->validate();
         $url = $this->getOption('base_url') . $request->getPath() . '?' . http_build_query($request->getParameters());
