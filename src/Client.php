@@ -5,7 +5,8 @@ use Quazardous\PriceministerWs\Request\AbstractRequest;
 use Quazardous\PriceministerWs\Request\ProductListingRequest;
 use Quazardous\PriceministerWs\ApiException;
 use Quazardous\PriceministerWs\CurlException;
-use cURL\Request as HttpRequest;
+use Quazardous\PriceministerWs\Response\BasicResponse;
+use cURL\Request as CurlRequest;
 
 class Client {
     protected $defaultParameters = array();
@@ -55,47 +56,37 @@ class Client {
     /**
      * Internal request function. Convert all to UTF8 if/before SimpleXMLElement parsing.
      * @param AbstractRequest $request
-     * @param boolean $raw returns the raw XML string or a SimpleXMLElement object.
-     * @return \SimpleXMLElement|string
+     * @return BasicResponse
      * @throws CurlException
      * @throws \RuntimeException
      * @throws ApiException
      */
-    public function request(AbstractRequest $request, $raw = false) {
+    public function request(AbstractRequest $request) {
         $request->setParameters($this->defaultParameters, true);
         $request->validate();
         $url = $this->getOption('base_url') . $request->getPath() . '?' . http_build_query($request->getParameters());
-        $http = new HttpRequest($url);
-        $http->getOptions()
+        $curl = new CurlRequest($url);
+        $curl->getOptions()
             ->set(CURLOPT_TIMEOUT, $this->getOption('timeout'))
             ->set(CURLOPT_RETURNTRANSFER, true)
             ->set(CURLOPT_HEADER, true);
-        $response = $http->send();
+        $curlResponse = $curl->send();
         
-        if ($response->hasError()) {
-            $error = $response->getError();
+        if ($curlResponse->hasError()) {
+            $error = $curlResponse->getError();
             throw new CurlException($error ? $error->getMessage() : 'Unkown exception', $error ? $error->getCode() : null);
         }
 
-        $content = $response->getContent();
+        $content = $curlResponse->getContent();
         
-        $header_size = $response->getInfo(CURLINFO_HEADER_SIZE);
-        
-//         $header = substr($raw, 0, $header_size);
+        $header_size = $curlResponse->getInfo(CURLINFO_HEADER_SIZE);
+            
+        $header = substr($content, 0, $header_size);
         $body = substr($content, $header_size);
-        
+               
         $start = substr($body, 0, 256);
         
-        $encoding = 'UTF-8';
-        $xml_tag_size = false;
-        if (!$raw) {    
-            $matches = null;
-            if (preg_match( '@(<\?xml[^>]+encoding="([^\s"]+)[^?]*\?>)@si', $start, $matches )) {
-                $encoding = $matches[2];
-                $xml_tag_size = strlen($matches[1]);
-            }
-        }
-        
+        $matches = null;
         if (preg_match( '@<\?xml[^>]+encoding="[^\s"]+[^?]*\?>\s*<errorresponse@si', $start, $matches )) {
             $xml = simplexml_load_string($body);
             if ($xml === false) {
@@ -109,28 +100,15 @@ class Client {
             }
             throw new ApiException($xml->error->message, $xml->error->type, $xml->error->code, $details);
         }
-        if ($raw) return $body;
-        
-        if ($xml_tag_size !== false) {
-            $body = '<?xml version="1.0" encoding="UTF-8"?>'.substr($body, $xml_tag_size);
-        }
-        
-        $body = iconv($encoding, 'UTF-8//TRANSLIT', $body);
-        $xml = simplexml_load_string($body);
-        if ($xml === false) {
-            throw new \RuntimeException('Response content is no valid XML');
-        }
-
-        return $xml;
+        return new BasicResponse($header, $body);
     }
     
     /**
      * Product Listing request.
      * @param ProductListingRequest $request
-     * @param boolean $raw
-     * @return SimpleXMLElement|string
+     * @return BasicResponse
      */
-    public function requestProductListing(ProductListingRequest $request, $raw = false) {
-        return $this->request($request, $raw);
+    public function requestProductListing(ProductListingRequest $request) {
+        return $this->request($request);
     }
 }

@@ -87,8 +87,9 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
         $request->setParameter('pwd', PRICEMINISTER_PWD);
         $request->setParameter('version', PRICEMINISTER_PRODUCT_LISTING_VERSION);
         $request->setParameter('refs', 9780747595823);
-        $xml = $client->request($request, true);
-        $this->assertContains('Harry Potter And The Deathly Hallows', $xml);
+        $response = $client->request($request);
+        $this->assertInstanceOf('Quazardous\PriceministerWs\Response\BasicResponse', $response);
+        $this->assertContains('Harry Potter And The Deathly Hallows', $response->getRawBody());
     }
     
     /**
@@ -101,7 +102,9 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
         $request->setParameter('pwd', PRICEMINISTER_PWD);
         $request->setParameter('version', PRICEMINISTER_PRODUCT_LISTING_VERSION);
         $request->setParameter('refs', 9780747595823);
-        $xml = $client->request($request);
+        $response = $client->request($request);
+        $this->assertInstanceOf('Quazardous\PriceministerWs\Response\BasicResponse', $response);
+        $xml = $response->getBodyAsSimpleXmlElement();
         $this->assertInstanceOf('SimpleXMLElement', $xml);
         $string = $xml->asXML();
         $this->assertRegExp('@<\?xml[^>]+encoding="UTF-8"[^?]*\?>@si', substr($string, 0, 128));

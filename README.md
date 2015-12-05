@@ -30,5 +30,5 @@ $request->setParameter('login', '***');
 $request->setParameter('pwd', '***');
 $request->setParameter('version', '2015-07-05');
 $request->setParameter('refs', 9780747595823);
-$xml = $client->request($request);
+$response = $client->request($request);
 ```
