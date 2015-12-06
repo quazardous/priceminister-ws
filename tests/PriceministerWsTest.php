@@ -141,7 +141,7 @@ class PriceministerWsMainTest extends PHPUnit_Framework_TestCase
     /**
      * @depends testClient
      */
-    public function testClientRawHeaders(Client $client)
+    public function testClientHeaders(Client $client)
     {
         $client->setDefaultParameter('login', PRICEMINISTER_LOGIN);
         $client->setDefaultParameter('pwd', PRICEMINISTER_PWD);
@@ -150,6 +150,7 @@ class PriceministerWsMainTest extends PHPUnit_Framework_TestCase
         $request->setParameter('kw', 'azerty');
         $response = $client->request($request);
         $this->assertContains('Content-Type: text/xml;charset=ISO-8859-1', $response->getRawHeaders());
+        $this->assertEquals('text/xml;charset=ISO-8859-1', $response->getHeaders('Content-Type'));
     }    
     
     /**

@@ -53,4 +53,22 @@ class BasicResponse {
         }
         return  $this->xml;
     }
+    
+    protected $headers = null;
+    /**
+     * Return the headers as associative array or return the given header.
+     * @param string $key
+     * @return string|string[]
+     */
+    public function getHeaders($key = null) {
+        if (!$this->headers) {
+            $this->headers = http_parse_headers ( $this->rawHeaders );
+        }
+        if ($key) {
+            if (isset($this->headers[$key])) {
+                return $this->headers[$key];
+            }
+        }
+        return $this->headers;
+    }
 }

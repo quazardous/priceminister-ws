@@ -7,6 +7,9 @@
 	"autoload" : {
 		"psr-4" : {
 			"Quazardous\\PriceministerWs\\" : "src/"
-		}
+		},
+		"files" : [
+            "src/functions/http_parse_headers.php"
+        ]
 	}
 }

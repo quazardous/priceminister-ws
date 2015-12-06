@@ -58,8 +58,8 @@ class Client {
     
     /**
      * Internal request function. Convert all to UTF8 if/before SimpleXMLElement parsing.
-     * @param \Quazardous\PriceministerWs\AbstractRequest $request
-     * @return \Quazardous\PriceministerWs\BasicResponse
+     * @param Request\AbstractRequest $request
+     * @return Response\BasicResponse
      * @throws CurlException
      * @throws \RuntimeException
      * @throws ApiException
@@ -73,8 +73,8 @@ class Client {
     
     /**
      * Product Listing request.
-     * @param \Quazardous\PriceministerWs\ProductListingRequest $request
-     * @return \Quazardous\PriceministerWs\BasicResponse
+     * @param Request\ProductListingRequest $request
+     * @return Response\BasicResponse
      */
     public function requestProductListing(ProductListingRequest $request) {
         return $this->request($request);
