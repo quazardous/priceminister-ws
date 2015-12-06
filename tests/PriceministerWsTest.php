@@ -3,7 +3,7 @@
 use Quazardous\PriceministerWs\Client;
 use Quazardous\PriceministerWs\Request\ProductListingRequest;
 
-class PriceministerWsTest extends PHPUnit_Framework_TestCase
+class PriceministerWsMainTest extends PHPUnit_Framework_TestCase
 {
     public function testClient()
     {
@@ -137,6 +137,20 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
         $this->assertContains('Harry Potter And The Deathly Hallows', $string);
         $this->assertContains('Livres en langue étrangère', $string);
     }
+
+    /**
+     * @depends testClient
+     */
+    public function testClientRawHeaders(Client $client)
+    {
+        $client->setDefaultParameter('login', PRICEMINISTER_LOGIN);
+        $client->setDefaultParameter('pwd', PRICEMINISTER_PWD);
+    
+        $request = new ProductListingRequest();
+        $request->setParameter('kw', 'azerty');
+        $response = $client->request($request);
+        $this->assertContains('Content-Type: text/xml;charset=ISO-8859-1', $response->getRawHeaders());
+    }    
     
     /**
      * @depends testClient
