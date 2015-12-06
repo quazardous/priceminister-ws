@@ -2,19 +2,19 @@
 namespace Quazardous\PriceministerWs\Request;
 
 /**
- * Product Listing request class.
+ * Product Listing (legacy) request class.
  * 
  * @link https://developer.priceminister.com/blog/en/documentation/product-data/product-listing-secure
  *
  */
-class ProductListingRequest extends AbstractRequest {
+class ProductListingLegacyRequest extends AbstractRequest {
     protected $options = array(
-        'url' => 'https://ws.priceminister.com/listing_ssl_ws',
+        'url' => 'http://ws.priceminister.com/listing_ws',
     );
     
     protected $parameters = array(
         'action' => 'listing',
-        'version' => '2015-07-05',
+        'version' => '2014-11-04',
     );
     
     public function validate() {

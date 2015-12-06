@@ -8,6 +8,12 @@ https://developer.priceminister.com
 ### Product Listing
 https://developer.priceminister.com/blog/en/documentation/product-data/product-listing-secure
 
+### Product Listing (legacy)
+https://developer.priceminister.com/blog/en/documentation/product-data/product-listing
+
+### Category List
+https://developer.priceminister.com/blog/en/documentation/product-data/category-map
+
 ## Install
 
 ```json

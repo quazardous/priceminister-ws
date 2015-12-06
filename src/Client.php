@@ -2,7 +2,6 @@
 namespace Quazardous\PriceministerWs;
 
 use Quazardous\PriceministerWs\Request\AbstractRequest;
-use Quazardous\PriceministerWs\Request\ProductListingRequest;
 
 class Client {
     protected $defaultParameters = array();
@@ -70,13 +69,5 @@ class Client {
         $request->validate();
         return $request->execute();
     }
-    
-    /**
-     * Product Listing request.
-     * @param Request\ProductListingRequest $request
-     * @return Response\BasicResponse
-     */
-    public function requestProductListing(ProductListingRequest $request) {
-        return $this->request($request);
-    }
+
 }

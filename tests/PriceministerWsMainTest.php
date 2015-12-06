@@ -2,6 +2,8 @@
 
 use Quazardous\PriceministerWs\Client;
 use Quazardous\PriceministerWs\Request\ProductListingRequest;
+use Quazardous\PriceministerWs\Request\ProductListingLegacyRequest;
+use Quazardous\PriceministerWs\Request\CategoryMapRequest;
 
 class PriceministerWsMainTest extends PHPUnit_Framework_TestCase
 {
@@ -32,13 +34,23 @@ class PriceministerWsMainTest extends PHPUnit_Framework_TestCase
     
     /**
      * @depends testClient
-     * @expectedException           InvalidArgumentException
-     * @expectedExceptionMessage    Missing mandatory parameter
+     * @expectedException           Quazardous\PriceministerWs\ApiException
+     * @expectedExceptionMessage    Problem with parameters
      */
     public function testClientBadRequestMissingParameter(Client $client)
     {
         $request = new ProductListingRequest();
-        $this->assertInstanceOf('Quazardous\\PriceministerWs\\Request\\ProductListingRequest', $request);
+        $client->request($request);
+    }
+    
+    /**
+     * @depends testClient
+     * @expectedException           Quazardous\PriceministerWs\ApiException
+     * @expectedExceptionMessage    Problem with parameters
+     */
+    public function testClientBadRequestMissingParameterWithLegacy(Client $client)
+    {
+        $request = new ProductListingLegacyRequest();
         $client->request($request);
     }
 
@@ -66,6 +78,84 @@ class PriceministerWsMainTest extends PHPUnit_Framework_TestCase
         $request->setParameter('login', PRICEMINISTER_LOGIN);
         $request->setParameter('pwd', PRICEMINISTER_PWD . 'not_good');
         $client->request($request);
+    }
+
+    /**
+     * @depends testClient
+     */
+    public function testClientBadRequestNoParameterLoginLegacy(Client $client)
+    {
+        $request = new ProductListingLegacyRequest();
+        $request->setParameter('refs', 9780747595823);
+        $response = $client->request($request);
+        $this->assertInstanceOf('Quazardous\PriceministerWs\Response\BasicResponse', $response);
+        $this->assertContains('Harry Potter And The Deathly Hallows', $response->getRawBody());
+        // it's working...
+    }
+    
+    /**
+     * @depends testClient
+     */
+    public function testClientGoodRequestLegacy(Client $client)
+    {
+        $request = new ProductListingLegacyRequest();
+        $request->setParameter('login', PRICEMINISTER_LOGIN);
+        $request->setParameter('refs', 9780747595823);
+        $response = $client->request($request);
+        $this->assertInstanceOf('Quazardous\PriceministerWs\Response\BasicResponse', $response);
+        $this->assertContains('Harry Potter And The Deathly Hallows', $response->getRawBody());
+    }
+    
+    /**
+     * @depends testClient
+     */
+    public function testClientBadRequestLegacyBadParameterLogin(Client $client)
+    {
+        $request = new ProductListingLegacyRequest();
+        $request->setParameter('login', PRICEMINISTER_LOGIN . '_oops');
+        $request->setParameter('refs', 9780747595823);
+        $response = $client->request($request);
+        $this->assertInstanceOf('Quazardous\PriceministerWs\Response\BasicResponse', $response);
+        $this->assertContains('Harry Potter And The Deathly Hallows', $response->getRawBody());
+        // it's working...
+    }
+    
+    /**
+     * @depends testClient
+     */
+    public function testClientBadRequestCategoryBadParameterLogin(Client $client)
+    {
+        $request = new CategoryMapRequest();
+        $request->setParameter('login', PRICEMINISTER_LOGIN . '_oops');
+        $response = $client->request($request);
+        $this->assertInstanceOf('Quazardous\PriceministerWs\Response\BasicResponse', $response);
+        $this->assertContains('Art-Collection_Buvard', $response->getRawBody());
+        // it's working...
+    }
+    
+    /**
+     * @depends testClient
+     */
+    public function testClientBadRequestCategoryNoParameterLogin(Client $client)
+    {
+        $request = new CategoryMapRequest();
+        $response = $client->request($request);
+        $this->assertInstanceOf('Quazardous\PriceministerWs\Response\BasicResponse', $response);
+        $this->assertContains('Art-Collection_Buvard', $response->getRawBody());
+        // it's working...
+    }
+    
+    /**
+     * @depends testClient
+     */
+    public function testClientGoodRequestCategory(Client $client)
+    {
+        $request = new CategoryMapRequest();
+        $request->setParameter('login', PRICEMINISTER_LOGIN);
+        $response = $client->request($request);
+        $this->assertInstanceOf('Quazardous\PriceministerWs\Response\BasicResponse', $response);
+        $this->assertContains('Art-Collection_Buvard', $response->getRawBody());
+        // it's working...
     }
 
     /**
