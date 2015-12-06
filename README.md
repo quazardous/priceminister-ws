@@ -28,7 +28,6 @@ $client = new Client();
 $request = new ProductListingRequest();
 $request->setParameter('login', '***');
 $request->setParameter('pwd', '***');
-$request->setParameter('version', '2015-07-05');
 $request->setParameter('refs', 9780747595823);
 $response = $client->request($request);
 ```

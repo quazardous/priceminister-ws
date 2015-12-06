@@ -14,6 +14,7 @@ class ProductListingRequest extends AbstractRequest {
     
     protected $parameters = array(
         'action' => 'listing',
+        'version' => '2015-07-05',
 //         'login' => null,
 //         'pwd' => null,
 //         'version' => null,

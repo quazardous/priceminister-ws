@@ -52,7 +52,6 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
         $request = new ProductListingRequest();
         $request->setParameter('login', PRICEMINISTER_LOGIN);
         $request->setParameter('pwd', array(PRICEMINISTER_PWD . 'not_good'));
-        $request->setParameter('version', PRICEMINISTER_PRODUCT_LISTING_VERSION);
         $client->request($request);
     }    
     
@@ -66,7 +65,6 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
         $request = new ProductListingRequest();
         $request->setParameter('login', PRICEMINISTER_LOGIN);
         $request->setParameter('pwd', PRICEMINISTER_PWD . 'not_good');
-        $request->setParameter('version', PRICEMINISTER_PRODUCT_LISTING_VERSION);
         $client->request($request);
     }
 
@@ -78,7 +76,6 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
         $request = new ProductListingRequest();
         $request->setParameter('login', PRICEMINISTER_LOGIN);
         $request->setParameter('pwd', PRICEMINISTER_PWD);
-        $request->setParameter('version', PRICEMINISTER_PRODUCT_LISTING_VERSION);
         try {
             $client->request($request);
             $this->assertTrue(false);
@@ -99,7 +96,6 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
         $request = new ProductListingRequest();
         $request->setParameter('login', PRICEMINISTER_LOGIN);
         $request->setParameter('pwd', PRICEMINISTER_PWD);
-        $request->setParameter('version', PRICEMINISTER_PRODUCT_LISTING_VERSION);
         $request->setParameter('refs', 9780747595823);
         $response = $client->request($request);
         $this->assertInstanceOf('Quazardous\PriceministerWs\Response\BasicResponse', $response);
@@ -115,7 +111,6 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
         $request = new ProductListingRequest();
         $request->setParameter('login', PRICEMINISTER_LOGIN);
         $request->setParameter('pwd', PRICEMINISTER_PWD);
-        $request->setParameter('version', PRICEMINISTER_PRODUCT_LISTING_VERSION);
         $request->setParameter('refs', $refs);
         $response = $client->request($request);
         $this->assertEquals(implode(',', $refs), $request->getParameter('refs'));
@@ -132,7 +127,6 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
         $request = new ProductListingRequest();
         $request->setParameter('login', PRICEMINISTER_LOGIN);
         $request->setParameter('pwd', PRICEMINISTER_PWD);
-        $request->setParameter('version', PRICEMINISTER_PRODUCT_LISTING_VERSION);
         $request->setParameter('refs', 9780747595823);
         $response = $client->request($request);
         $this->assertInstanceOf('Quazardous\PriceministerWs\Response\BasicResponse', $response);
@@ -154,7 +148,6 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
         
         $request = new ProductListingRequest();
         $request->setParameter('kw', 'azerty');
-        $request->setParameter('version', PRICEMINISTER_PRODUCT_LISTING_VERSION);
         $client->request($request);
     }
     
@@ -169,7 +162,6 @@ class PriceministerWsTest extends PHPUnit_Framework_TestCase
         $request->setOption('url', 'https://__not_existing_domain__.not/');
         $request->setParameter('login', PRICEMINISTER_LOGIN);
         $request->setParameter('pwd', PRICEMINISTER_PWD);
-        $request->setParameter('version', PRICEMINISTER_PRODUCT_LISTING_VERSION);
         $client->request($request);
     }
 
