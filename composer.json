@@ -1,6 +1,14 @@
 {
 	"name" : "quazardous/priceminister-ws",
-	"licence" : "MIT",
+	"type" : "library",
+    "description" : "Priceminister webservice SDK",
+    "license" : "MIT",
+    "authors" : [{
+            "name" : "Quazardous",
+            "email" : "berliozdavid@gmail.com",
+            "role" : "Developer"
+        }
+    ],
 	"require" : {
 		"stil/curl-easy" : "*"
 	},
