@@ -36,6 +36,9 @@ class ApiException extends \RuntimeException {
     public function setResponse($response) {
         $this->response = $response;
     }
+    /**
+     * @return \Quazardous\PriceministerWs\Response\BasicResponse
+     */
     public function getResponse() {
         return $this->response;
     }
