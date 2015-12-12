@@ -10,7 +10,7 @@
         }
     ],
 	"require" : {
-		"stil/curl-easy" : "*"
+		"stil/curl-easy" : "~1.1"
 	},
 	"autoload" : {
 		"psr-4" : {
