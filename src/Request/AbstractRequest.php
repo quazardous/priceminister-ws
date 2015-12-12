@@ -130,7 +130,8 @@ abstract class AbstractRequest {
         
         $header = substr($content, 0, $header_size);
         $body = substr($content, $header_size);
-         
+        $basic = new BasicResponse($header, $body);
+        
         $start = substr($body, 0, 256);
         
         $matches = null;
@@ -145,8 +146,8 @@ abstract class AbstractRequest {
                     $details[] = (string) $detail;
                 }
             }
-            throw new ApiException($xml->error->message, $xml->error->type, $xml->error->code, $details);
+            throw new ApiException($xml->error->message, $xml->error->type, $xml->error->code, $details, $basic);
         }
-        return new BasicResponse($header, $body);
+        return $basic;
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 namespace Quazardous\PriceministerWs;
+use Quazardous\PriceministerWs\Response\BasicResponse;
 
 /**
  * Exception thrown by Priceminister API layer.
@@ -31,11 +32,20 @@ class ApiException extends \RuntimeException {
         return $this->details;
     }
     
-    public function __construct ($message = null, $apiType = null, $apiCode = null, $details = array()) {
+    protected $response;
+    public function setResponse($response) {
+        $this->response = $response;
+    }
+    public function getResponse() {
+        return $this->response;
+    }
+    
+    public function __construct ($message = null, $apiType = null, $apiCode = null, $details = array(), BasicResponse $response = null) {
         parent::__construct($message);
         $this->setApiType($apiType);
         $this->setApiCode($apiCode);
         $this->setDetails($details);
+        $this->setResponse($response);
     }
     
 }
