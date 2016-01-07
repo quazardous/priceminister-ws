@@ -2,6 +2,8 @@
 
 namespace Quazardous\PriceministerWs\Response;
 
+use Quazardous\PriceministerWs\RuntimeException;
+
 class BasicResponse {
     protected $rawBody = null;
     protected $rawHeaders = null;
@@ -22,7 +24,7 @@ class BasicResponse {
     protected $xml = null;
     /**
      * Return the body as SimpleXMLElement.
-     * @throws \RuntimeException
+     * @throws \Quazardous\PriceministerWs\RuntimeException
      * @return SimpleXMLElement
      */
     public function getBodyAsSimpleXmlElement() {
@@ -46,7 +48,7 @@ class BasicResponse {
             $body = iconv($encoding, 'UTF-8//TRANSLIT', $body);
             $xml = simplexml_load_string($body);
             if ($xml === false) {
-                throw new \RuntimeException('Response content is no valid XML');
+                throw new RuntimeException('Response content is no valid XML', RuntimeException::NO_VALID_XML);
             }
             
             $this->xml = $xml;

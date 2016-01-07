@@ -16,6 +16,20 @@ class PriceministerWsMainTest extends PHPUnit_Framework_TestCase
 
     /**
      * @depends testClient
+     * @expectedException           Quazardous\PriceministerWs\RuntimeException
+     * @expectedExceptionCode       1
+     */
+    public function testClientBadRequestLegacyNotFound(Client $client)
+    {
+        $request = new ProductListingLegacyRequest();
+        $request->setOption('url', 'http://ws.priceminister.com/starwars404');
+        $request->setParameter('login', PRICEMINISTER_LOGIN);
+        $request->setParameter('refs', 9780747595823);
+        $client->request($request);
+    }
+    
+    /**
+     * @depends testClient
      */
     public function testClientDefaultOptionTimeout(Client $client)
     {

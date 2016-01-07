@@ -4,6 +4,7 @@ namespace Quazardous\PriceministerWs;
 use Quazardous\PriceministerWs\Request\AbstractRequest;
 
 class Client {
+    
     protected $defaultParameters = array();
     protected $defaultOptions = array(
         'timeout' => 10,
@@ -60,7 +61,7 @@ class Client {
      * @param Request\AbstractRequest $request
      * @return Response\BasicResponse
      * @throws CurlException
-     * @throws \RuntimeException
+     * @throws \Quazardous\PriceministerWs\RuntimeException
      * @throws ApiException
      */
     public function request(AbstractRequest $request) {

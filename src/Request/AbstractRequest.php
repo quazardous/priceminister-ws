@@ -4,9 +4,11 @@ namespace Quazardous\PriceministerWs\Request;
 use cURL\Request as CurlRequest;
 use Quazardous\PriceministerWs\ApiException;
 use Quazardous\PriceministerWs\CurlException;
+use Quazardous\PriceministerWs\RuntimeException;
 use Quazardous\PriceministerWs\Response\BasicResponse;
 
 abstract class AbstractRequest {
+      
     protected $options = array();
     /**
      * Set the options.
@@ -106,7 +108,7 @@ abstract class AbstractRequest {
     /**
      * Execute the request.
      * @throws CurlException
-     * @throws \RuntimeException
+     * @throws \Quazardous\PriceministerWs\RuntimeException
      * @throws ApiException
      * @return \Quazardous\PriceministerWs\Response\BasicResponse
      */
@@ -124,6 +126,12 @@ abstract class AbstractRequest {
             throw new CurlException($error ? $error->getMessage() : 'Unkown exception', $error ? $error->getCode() : null);
         }
         
+        $code = $curlResponse->getInfo(CURLINFO_HTTP_CODE);
+        
+        if ($code != 200) {
+            throw new RuntimeException('HTTP code is not 200', RuntimeException::HTTP_CODE_NOT_200);
+        }
+        
         $content = $curlResponse->getContent();
         
         $header_size = $curlResponse->getInfo(CURLINFO_HEADER_SIZE);
@@ -138,7 +146,7 @@ abstract class AbstractRequest {
         if (preg_match( '@<\?xml[^>]+encoding="[^\s"]+[^?]*\?>\s*<errorresponse@si', $start, $matches )) {
             $xml = simplexml_load_string($body);
             if ($xml === false) {
-                throw new \RuntimeException('Response content is no valid XML');
+                throw new RuntimeException('Response content is no valid XML', RuntimeException::NO_VALID_XML);
             }
             $details = array();
             if ($xml->error->details->detail) {
