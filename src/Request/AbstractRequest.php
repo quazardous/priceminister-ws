@@ -128,10 +128,6 @@ abstract class AbstractRequest {
         
         $code = $curlResponse->getInfo(CURLINFO_HTTP_CODE);
         
-        if ($code != 200) {
-            throw new RuntimeException('HTTP code is not 200', RuntimeException::HTTP_CODE_NOT_200);
-        }
-        
         $content = $curlResponse->getContent();
         
         $header_size = $curlResponse->getInfo(CURLINFO_HEADER_SIZE);
@@ -139,6 +135,12 @@ abstract class AbstractRequest {
         $header = substr($content, 0, $header_size);
         $body = substr($content, $header_size);
         $basic = new BasicResponse($header, $body);
+        
+        if ($code != 200) {
+            $e = new RuntimeException('HTTP code is not 200 (' . $code . ')', RuntimeException::HTTP_CODE_NOT_200);
+            $e->setResponse($basic);
+            throw $e;
+        }
         
         $start = substr($body, 0, 256);
         
