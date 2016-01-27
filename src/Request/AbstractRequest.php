@@ -136,12 +136,6 @@ abstract class AbstractRequest {
         $body = substr($content, $header_size);
         $basic = new BasicResponse($header, $body);
         
-        if ($code != 200) {
-            $e = new RuntimeException('HTTP code is not 200 (' . $code . ')', RuntimeException::HTTP_CODE_NOT_200);
-            $e->setResponse($basic);
-            throw $e;
-        }
-        
         $start = substr($body, 0, 256);
         
         $matches = null;
@@ -158,6 +152,13 @@ abstract class AbstractRequest {
             }
             throw new ApiException($xml->error->message, $xml->error->type, $xml->error->code, $details, $basic);
         }
+        
+        if ($code != 200) {
+            $e = new RuntimeException('HTTP code is not 200 (' . $code . ')', RuntimeException::HTTP_CODE_NOT_200);
+            $e->setResponse($basic);
+            throw $e;
+        }
+        
         return $basic;
     }
 }
