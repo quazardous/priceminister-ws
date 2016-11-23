@@ -106,6 +106,20 @@ abstract class AbstractRequest {
     }
     
     /**
+     * Create the raw CURL request.
+     * @return CurlRequest
+     */
+    protected function getCurlRequest($url)
+    {
+        $curl = new CurlRequest($url);
+        $curl->getOptions()
+            ->set(CURLOPT_TIMEOUT, $this->getOption('timeout'))
+            ->set(CURLOPT_RETURNTRANSFER, true)
+            ->set(CURLOPT_HEADER, true);
+        return $curl;
+    }
+    
+    /**
      * Execute the request.
      * @throws CurlException
      * @throws \Quazardous\PriceministerWs\RuntimeException
@@ -114,11 +128,7 @@ abstract class AbstractRequest {
      */
     public function execute() {
         $url = $this->getOption('url') . '?' . http_build_query($this->getParameters());
-        $curl = new CurlRequest($url);
-        $curl->getOptions()
-            ->set(CURLOPT_TIMEOUT, $this->getOption('timeout'))
-            ->set(CURLOPT_RETURNTRANSFER, true)
-            ->set(CURLOPT_HEADER, true);
+        $curl = $this->getCurlRequest($url);
         $curlResponse = $curl->send();
         
         if ($curlResponse->hasError()) {
