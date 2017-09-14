@@ -10,7 +10,10 @@
         }
     ],
 	"require" : {
-		"stil/curl-easy" : "=v1.1.4"
+		"stil/curl-easy" : "^v1.1.4"
+	},
+	"require-dev" : {
+		"phpunit/phpunit": "^6.2"
 	},
 	"autoload" : {
 		"psr-4" : {
