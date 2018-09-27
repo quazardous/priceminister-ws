@@ -23,7 +23,7 @@ class PriceministerWsMainTest extends TestCase
     public function testClientBadRequestLegacyNotFound(Client $client)
     {
         $request = new ProductListingLegacyRequest();
-        $request->setOption('url', 'http://ws.priceminister.com/starwars404');
+        $request->setOption('url', 'https://ws.fr.shopping.rakuten.com/starwars404');
         $request->setParameter('login', PRICEMINISTER_LOGIN);
         $request->setParameter('refs', 9780747595823);
         $client->request($request);

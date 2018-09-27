@@ -9,7 +9,7 @@ namespace Quazardous\PriceministerWs\Request;
  */
 class CategoryMapRequest extends AbstractRequest {
     protected $options = array(
-        'url' => 'http://ws.priceminister.com/categorymap_ws',
+        'url' => 'https://ws.fr.shopping.rakuten.com/categorymap_ws',
     );
     
     protected $parameters = array(

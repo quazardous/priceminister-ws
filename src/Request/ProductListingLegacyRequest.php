@@ -9,7 +9,7 @@ namespace Quazardous\PriceministerWs\Request;
  */
 class ProductListingLegacyRequest extends AbstractRequest {
     protected $options = array(
-        'url' => 'http://ws.priceminister.com/listing_ws',
+        'url' => 'https://ws.fr.shopping.rakuten.com/listing_ws',
     );
     
     protected $parameters = array(
