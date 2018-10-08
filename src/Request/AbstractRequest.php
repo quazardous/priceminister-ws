@@ -160,7 +160,7 @@ abstract class AbstractRequest {
                     $details[] = (string) $detail;
                 }
             }
-            throw new ApiException($xml->error->message, $xml->error->type, $xml->error->code, $details, $basic);
+            throw new ApiException((string)$xml->error->message, (string)$xml->error->type, (string)$xml->error->code, $details, $basic);
         }
         
         if ($code != 200) {
