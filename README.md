@@ -7,10 +7,10 @@ https://developer.fr.shopping.rakuten.com/blog/
 ## Working API functions
 
 ### ProductListing
-https://developer.priceminister.com/blog/en/documentation/product-data/product-listing-secure
+https://developer.fr.shopping.rakuten.com/blog/fr/product-listing-secure/
 
 ### CategoryMap
-https://developer.priceminister.com/blog/en/documentation/product-data/category-map
+https://developer.fr.shopping.rakuten.com/blog/fr/category-map/
 
 ### GetCurrentSales
 https://developer.fr.shopping.rakuten.com/blog/fr/documentation/post-confirmation-of-sale/get-current-sales/
