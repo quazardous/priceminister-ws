@@ -2,9 +2,14 @@
 
 use Quazardous\PriceministerWs\Client;
 use Quazardous\PriceministerWs\Request\ProductListingRequest;
-use Quazardous\PriceministerWs\Request\ProductListingLegacyRequest;
 use Quazardous\PriceministerWs\Request\CategoryMapRequest;
 use PHPUnit\Framework\TestCase;
+use Quazardous\PriceministerWs\Request\GetCurrentSalesRequest;
+use Quazardous\PriceministerWs\Request\RefuseSaleRequest;
+use Quazardous\PriceministerWs\ApiException;
+use Quazardous\PriceministerWs\Request\AcceptSaleRequest;
+use Quazardous\PriceministerWs\Request\ImportStockRequest;
+use Quazardous\PriceministerWs\Request\ImportReportStockRequest;
 
 class PriceministerWsMainTest extends TestCase
 {
@@ -15,20 +20,6 @@ class PriceministerWsMainTest extends TestCase
         return $client;
     }
 
-    /**
-     * @depends testClient
-     * @expectedException           Quazardous\PriceministerWs\RuntimeException
-     * @expectedExceptionCode       1
-     */
-    public function testClientBadRequestLegacyNotFound(Client $client)
-    {
-        $request = new ProductListingLegacyRequest();
-        $request->setOption('url', 'https://ws.fr.shopping.rakuten.com/starwars404');
-        $request->setParameter('login', PRICEMINISTER_LOGIN);
-        $request->setParameter('refs', 9780747595823);
-        $client->request($request);
-    }
-    
     /**
      * @depends testClient
      */
@@ -49,6 +40,96 @@ class PriceministerWsMainTest extends TestCase
     
     /**
      * @depends testClient
+     */
+    public function testClientImportStockRequest(Client $client)
+    {
+        $request = new ImportStockRequest();
+        $request->setParameter('login', PRICEMINISTER_LOGIN);
+        $request->setParameter('pwd', PRICEMINISTER_PWD);
+        $request->setParameter('profileid', PRICEMINISTER_CUSTOM_PROFILEID);
+        $request->setFile(__DIR__ . '/files/matching_ean.csv');
+        $res = $client->request($request);
+        $this->assertTrue(isset($res->getBodyAsSimpleXmlElement()->response->importid));
+        $this->assertTrue(isset($res->getBodyAsSimpleXmlElement()->response->status));
+        $this->assertEquals('OK', (string)$res->getBodyAsSimpleXmlElement()->response->status);
+        
+//         return (string)$res->getBodyAsSimpleXmlElement()->response->importid;
+    }
+    
+    //     /**
+    //      * @depends testClient
+    //      */
+    //     public function testClientImportReportStockRequest(Client $client)
+    //     {
+    //         //return;
+    //         $importId = xxx;
+    //         $request = new ImportReportStockRequest();
+    //         $request->setParameter('login', PRICEMINISTER_LOGIN);
+    //         $request->setParameter('pwd', PRICEMINISTER_PWD);
+    //         $request->setParameter('fileid', $importId);
+    //         try {
+    //             $res = $client->request($request);
+    //             print_r($res->getBodyAsArray());
+    //         } catch (ApiException $e) {
+    //             print_r($e);
+    //         }
+    //         die();
+    //     }
+    
+    /**
+     * @depends testClient
+     */
+    public function testClientRefuseSaleRequest(Client $client)
+    {
+        $request = new RefuseSaleRequest();
+        $request->setParameter('login', PRICEMINISTER_LOGIN);
+        $request->setParameter('pwd', PRICEMINISTER_PWD);
+        $request->setParameter('itemid', 123);
+        try {
+            $client->request($request);
+        } catch (ApiException $e) {
+            $this->assertTrue(isset($e->getDetails()[0]));
+            $this->assertEquals('The parameter \'itemid\' is invalid.', $e->getDetails()[0]);
+            return;
+        }
+        $this->assertTrue(false);
+    }
+
+    /**
+     * @depends testClient
+     */
+    public function testClientAcceptSaleRequest(Client $client)
+    {
+        $request = new AcceptSaleRequest();
+        $request->setParameter('login', PRICEMINISTER_LOGIN);
+        $request->setParameter('pwd', PRICEMINISTER_PWD);
+        $request->setParameter('itemid', 123);
+        try {
+            $client->request($request);
+        } catch (ApiException $e) {
+            $this->assertTrue(isset($e->getDetails()[0]));
+            $this->assertEquals('The parameter \'itemid\' is invalid.', $e->getDetails()[0]);
+            return;
+        }
+        $this->assertTrue(false);
+    }
+    
+    /**
+     * @depends testClient
+     */
+    public function testClientGetCurrentSalesRequest(Client $client)
+    {
+        $request = new GetCurrentSalesRequest();
+        $request->setParameter('login', PRICEMINISTER_LOGIN);
+        $request->setParameter('pwd', PRICEMINISTER_PWD);
+        $response = $client->request($request);
+        $this->assertInstanceOf('Quazardous\PriceministerWs\Response\BasicResponse', $response);
+        $this->assertTrue(isset($response->getBodyAsSimpleXmlElement()->response->sellerid));
+        $this->assertEquals(PRICEMINISTER_SELLERID, (string)$response->getBodyAsSimpleXmlElement()->response->sellerid);
+    }
+    
+    /**
+     * @depends testClient
      * @expectedException           Quazardous\PriceministerWs\ApiException
      * @expectedExceptionMessage    Problem with parameters
      */
@@ -57,19 +138,6 @@ class PriceministerWsMainTest extends TestCase
         $request = new ProductListingRequest();
         $client->request($request);
     }
-    
-    /**
-     * @depends testClient
-     * @expectedException           InvalidArgumentException
-     * @expectedExceptionMessage    pwd is not a scalar value
-     */
-    public function testClientBadRequestNonScalarPassword(Client $client)
-    {
-        $request = new ProductListingRequest();
-        $request->setParameter('login', PRICEMINISTER_LOGIN);
-        $request->setParameter('pwd', array(PRICEMINISTER_PWD . 'not_good'));
-        $client->request($request);
-    }    
     
     /**
      * @depends testClient
@@ -222,18 +290,4 @@ class PriceministerWsMainTest extends TestCase
         $this->assertTrue(true);
     }
     
-    /**
-     * @depends testClient
-     * @expectedException           Quazardous\PriceministerWs\CurlException
-     * @expectedExceptionMessage    Could not resolve host: __not_existing_domain__.not
-     */
-    public function testClientBadRequestBadUrl(Client $client)
-    {
-        $request = new ProductListingRequest();
-        $request->setOption('url', 'https://__not_existing_domain__.not/');
-        $request->setParameter('login', PRICEMINISTER_LOGIN);
-        $request->setParameter('pwd', PRICEMINISTER_PWD);
-        $client->request($request);
-    }
-
 }

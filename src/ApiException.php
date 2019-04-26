@@ -24,7 +24,7 @@ class ApiException extends \RuntimeException {
         return $this->apiCode;
     }
     
-    protected $details = array();
+    protected $details = [];
     public function setDetails($details) {
         $this->details = $details;
     }
@@ -43,7 +43,7 @@ class ApiException extends \RuntimeException {
         return $this->response;
     }
     
-    public function __construct ($message = null, $apiType = null, $apiCode = null, $details = array(), BasicResponse $response = null) {
+    public function __construct ($message = null, $apiType = null, $apiCode = null, $details = [], BasicResponse $response = null) {
         parent::__construct($message);
         $this->setApiType($apiType);
         $this->setApiCode($apiCode);

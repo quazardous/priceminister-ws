@@ -21,15 +21,20 @@ class BasicResponse {
         return  $this->rawBody;
     }
     
-    protected $xml = null;
+    protected $sanitizeBodyCallback;
+    public function setSanitizeBodyCallback(callable $callback)
+    {
+        $this->sanitizeBodyCallback = $callback;
+    }
+    
+    protected $sanitizedBody = null;
     /**
-     * Return the body as SimpleXMLElement.
-     * @throws \Quazardous\PriceministerWs\RuntimeException
-     * @return SimpleXMLElement
+     * Return a sanitized body.
+     * @return string
      */
-    public function getBodyAsSimpleXmlElement($bodyCallback = null) {
-        if (!$this->xml) {
-        
+    public function getSanitizedBody()
+    {
+        if (is_null($this->sanitizedBody)) {
             $body = $this->rawBody;
             $start = substr($body, 0, 256);
             
@@ -46,17 +51,38 @@ class BasicResponse {
             }
             
             $body = iconv($encoding, 'UTF-8//TRANSLIT', $body);
-            if ($bodyCallback) {
-                $body = call_user_func($bodyCallback, $body);
+            if ($this->sanitizeBodyCallback) {
+                $body = call_user_func($this->sanitizeBodyCallback, $body);
             }
-            $xml = simplexml_load_string($body);
+            $this->sanitizedBody = $body;
+        }
+        return $this->sanitizedBody;
+    }
+    
+    protected $xml = null;
+    /**
+     * Return the body as SimpleXMLElement.
+     * @throws \Quazardous\PriceministerWs\RuntimeException
+     * @return \SimpleXMLElement
+     */
+    public function getBodyAsSimpleXmlElement() {
+        if (!$this->xml) {
+            $xml = simplexml_load_string($this->getSanitizedBody(), \SimpleXMLElement::class, LIBXML_NOCDATA);
             if ($xml === false) {
                 throw new RuntimeException('Response content is no valid XML', RuntimeException::NO_VALID_XML);
             }
-            
             $this->xml = $xml;
         }
         return  $this->xml;
+    }
+    
+    protected $array = null;
+    public function getBodyAsArray()
+    {
+        if (is_null($this->array)) {
+            $this->array = @json_decode(@json_encode((array)$this->getBodyAsSimpleXmlElement()), true);
+        }
+        return $this->array;
     }
     
     protected $headers = null;

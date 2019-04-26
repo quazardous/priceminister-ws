@@ -8,8 +8,17 @@ use Quazardous\PriceministerWs\RuntimeException;
 use Quazardous\PriceministerWs\Response\BasicResponse;
 
 abstract class AbstractRequest {
-      
-    protected $options = array();
+    /**
+     * @var string
+     */
+    protected $mode = 'get';
+    
+    /**
+     * @var string
+     */
+    protected $url;
+    
+    protected $options = [];
     /**
      * Set the options.
      * @param array $options
@@ -39,11 +48,11 @@ abstract class AbstractRequest {
      * @param string $key
      * @return mixed
      */
-    public function getOption($key) {
-        return $this->options[$key];
+    public function getOption($key, $default = null) {
+        return $this->options[$key] ?? $default;
     }
     
-    protected $parameters = array();
+    protected $parameters = [];
     /**
      * Set the parameters.
      * @param array $parameters
@@ -88,34 +97,138 @@ abstract class AbstractRequest {
     /**
      * @param array $parameters
      */
-    public function __construct(array $parameters = array()) {
+    public function __construct(array $parameters = []) {
         $this->setParameters($parameters);
+        $this->init();
+    }
+    
+    protected function init()
+    {
+        // child stuff
+    }
+    
+    protected $stringifyArrayParameters = true;
+    /**
+     * Parameters preprocessors.
+     * @var array
+     */
+    protected $parameterProcessors = [];
+    protected function preProcessParameter($key, &$value)
+    {
+        if ($this->stringifyArrayParameters) {
+            $this->stringifyArrayParameter($value);
+        }
+        if (empty($this->parameterProcessors[$key])) return;
+        $params = [&$value];
+        call_user_func_array($this->parameterProcessors[$key], $params);
+    }
+
+    /**
+     * Parameters preprocessors.
+     * @var array
+     */
+    protected $postFieldProcessors = [];
+    protected function preProcessPostField($key, &$value)
+    {
+        if (empty($this->postFieldProcessors[$key])) return;
+        $params = [&$value];
+        call_user_func_array($this->postFieldProcessors[$key], $params);
+    }
+    
+    protected $postFields = [];
+    public function addPostField($name, $data)
+    {
+        $this->postFields[$name] = $data;
     }
     
     /**
-     * Validate the parameters.
+     * @param mixed $item
+     * @return boolean
+     */
+    static protected function isScalarizable($item)
+    {
+        return 
+            ( !is_array( $item ) )
+            && (
+                ( !is_object( $item ) && settype( $item, 'string' ) !== false )
+                || ( is_object( $item ) && method_exists( $item, '__toString' ) )
+            );
+    }
+    
+    /**
+     * Validate the request.
      */
     public function validate() {
         foreach ($this->parameters as $key => &$value) {
-            if (!(is_scalar($value) || is_null($value))) {
-                throw new \InvalidArgumentException("$key is not a scalar value");
+            $this->preProcessParameter($key, $value);
+            if (!(self::isScalarizable($value) || is_null($value))) {
+                throw new \InvalidArgumentException(sprintf("Parameter %s cannot be cast to a string", $key));
             }
             $value = (string)$value;
         }
-        
+        switch ($this->mode) {
+            case 'multipart':
+                foreach ($this->postFields as $key => &$value) {
+                    $this->preProcessPostField($key, $value);
+                    if (! $value instanceof \CURLFile) {
+                        if (!(self::isScalarizable($value) || is_null($value))) {
+                            throw new \InvalidArgumentException(sprintf("Post field %s cannot be cast to a string", $key));
+                        }
+                        $value = (string)$value;
+                    }
+                }
+                break;
+        }
     }
     
     /**
      * Create the raw CURL request.
      * @return CurlRequest
      */
-    protected function getCurlRequest($url)
+    protected function getCurlRequest()
     {
+        $url = $this->url . '?' . http_build_query($this->getParameters());
         $curl = new CurlRequest($url);
         $curl->getOptions()
-            ->set(CURLOPT_TIMEOUT, $this->getOption('timeout'))
             ->set(CURLOPT_RETURNTRANSFER, true)
             ->set(CURLOPT_HEADER, true);
+
+        $headers = [];
+        $timeout = $this->getOption('timeout');
+        if ($curlOptions = $this->getOption('curl_options')) {
+            foreach ((array) $curlOptions as $key => $value) {
+                if (in_array($key, [CURLOPT_POSTFIELDS, CURLOPT_RETURNTRANSFER, CURLOPT_HEADER])) {
+                    throw new \InvalidArgumentException(sprintf('Forbidden CURLOPT_XXX option %d', $key));
+                }
+                if (CURLOPT_TIMEOUT == $key) {
+                    $timeout = $value;
+                    continue;
+                }
+                if (CURLOPT_HTTPHEADER == $key) {
+                    $headers = (array)$value;
+                    continue;
+                }
+                $curl->getOptions()->set($key, $value);
+            }
+        }
+        
+        switch ($this->mode)
+        {
+            case 'multipart':
+                // header automatique
+                // $headers[] = 'Content-Type:multipart/form-data';
+                $curl->getOptions()->set(CURLOPT_POSTFIELDS, (array)$this->postFields);
+                break;
+        }
+
+        if (!empty($headers)) {
+            $curl->getOptions()->set(CURLOPT_HTTPHEADER, $headers);
+        }
+        
+        if ($timeout) {
+            $curl->getOptions()->set(CURLOPT_TIMEOUT, $timeout);
+        }
+            
         return $curl;
     }
     
@@ -127,8 +240,7 @@ abstract class AbstractRequest {
      * @return \Quazardous\PriceministerWs\Response\BasicResponse
      */
     public function execute() {
-        $url = $this->getOption('url') . '?' . http_build_query($this->getParameters());
-        $curl = $this->getCurlRequest($url);
+        $curl = $this->getCurlRequest();
         $curlResponse = $curl->send();
         
         if ($curlResponse->hasError()) {
@@ -154,7 +266,7 @@ abstract class AbstractRequest {
             if ($xml === false) {
                 throw new RuntimeException('Response content is no valid XML', RuntimeException::NO_VALID_XML);
             }
-            $details = array();
+            $details = [];
             if ($xml->error->details->detail) {
                 foreach ($xml->error->details->detail as $detail) {
                     $details[] = (string) $detail;
@@ -170,5 +282,16 @@ abstract class AbstractRequest {
         }
         
         return $basic;
+    }
+    
+    /**
+     * Implode arrays in comma separated string.
+     * @param mixed $value
+     */
+    protected function stringifyArrayParameter(&$value)
+    {
+        if (empty($value)) return;
+        if (is_scalar($value)) return;
+        $value = implode(',', $value);
     }
 }

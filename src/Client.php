@@ -5,17 +5,17 @@ use Quazardous\PriceministerWs\Request\AbstractRequest;
 
 class Client {
     
-    protected $defaultParameters = array();
-    protected $defaultOptions = array(
+    protected $defaultParameters = [];
+    protected $defaultOptions = [
         'timeout' => 10,
-    );
+    ];
     
     /**
      * Client constructor.
      * @param array $options you can define default options here (like timeout).
      * @see setOption()
      */
-    public function __construct(array $options = array()) {
+    public function __construct(array $options = []) {
         $this->defaultOptions = array_merge($this->defaultOptions, $options);
     }
     

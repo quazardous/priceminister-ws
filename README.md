@@ -5,23 +5,29 @@ Ongoing work to access Priceminister Webservices.
 https://developer.priceminister.com
 
 ## Working API functions
-### Product Listing
+
+### ProductListing
 https://developer.priceminister.com/blog/en/documentation/product-data/product-listing-secure
 
-### Product Listing (legacy)
-https://developer.priceminister.com/blog/en/documentation/product-data/product-listing
-
-### Category List
+### CategoryMap
 https://developer.priceminister.com/blog/en/documentation/product-data/category-map
+
+### GetCurrentSales
+https://developer.fr.shopping.rakuten.com/blog/fr/documentation/post-confirmation-of-sale/get-current-sales/
+
+### AcceptSale, RefuseSale
+https://developer.fr.shopping.rakuten.com/blog/fr/documentation/new-sales/accept-or-refuse-sales/
+
+### ImportStock
+https://developer.fr.shopping.rakuten.com/blog/fr/documentation/inventory-management/import-csv/inventory-import/
+
+### ImportReport
+https://developer.fr.shopping.rakuten.com/blog/fr/documentation/inventory-management/import-csv/inventory-import/
 
 ## Install
 
-```json
-...
-require : {
-    "quazardous/priceminister-ws" : "*@dev"
-}
-...
+```bash
+composer req quazardous/priceminister-ws
 ```
 
 ## Usage
