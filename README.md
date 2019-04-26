@@ -1,8 +1,8 @@
 # Priceminister Webservices SDK
 
-Ongoing work to access Priceminister Webservices.
+~~Ongoing~~ Nearly done work to access Priceminister Rakuten Webservices.
 
-https://developer.priceminister.com
+https://developer.fr.shopping.rakuten.com/blog/
 
 ## Working API functions
 
