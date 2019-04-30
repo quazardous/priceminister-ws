@@ -5,20 +5,27 @@ namespace Quazardous\PriceministerWs\Response;
 use Quazardous\PriceministerWs\RuntimeException;
 
 class BasicResponse {
+    protected $code;
     protected $rawBody = null;
     protected $rawHeaders = null;
     
-    public function __construct($rawHeaders, $rawBody) {
+    public function __construct($code, $rawHeaders, $rawBody) {
+        $this->code = $code;
         $this->rawHeaders = $rawHeaders;
         $this->rawBody = $rawBody;
     }
     
+    public function getCode()
+    {
+        return $this->code;
+    }
+    
     public function getRawHeaders() {
-        return  $this->rawHeaders;
+        return $this->rawHeaders;
     }
     
     public function getRawBody() {
-        return  $this->rawBody;
+        return $this->rawBody;
     }
     
     protected $sanitizeBodyCallback;

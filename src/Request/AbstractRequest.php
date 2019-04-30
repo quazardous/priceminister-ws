@@ -1,9 +1,7 @@
 <?php
 namespace Quazardous\PriceministerWs\Request;
 
-use cURL\Request as CurlRequest;
 use Quazardous\PriceministerWs\ApiException;
-use Quazardous\PriceministerWs\CurlException;
 use Quazardous\PriceministerWs\RuntimeException;
 use Quazardous\PriceministerWs\Response\BasicResponse;
 
@@ -13,10 +11,20 @@ abstract class AbstractRequest {
      */
     protected $mode = 'get';
     
+    public function getMode()
+    {
+        return $this->mode;
+    }
+    
     /**
      * @var string
      */
     protected $url;
+    
+    public function getUrl()
+    {
+        return $this->url;
+    }
     
     protected $options = [];
     /**
@@ -140,6 +148,10 @@ abstract class AbstractRequest {
     {
         $this->postFields[$name] = $data;
     }
+    public function getPostFields()
+    {
+        return $this->postFields;
+    }
     
     /**
      * @param mixed $item
@@ -182,82 +194,18 @@ abstract class AbstractRequest {
     }
     
     /**
-     * Create the raw CURL request.
-     * @return CurlRequest
-     */
-    protected function getCurlRequest()
-    {
-        $url = $this->url . '?' . http_build_query($this->getParameters());
-        $curl = new CurlRequest($url);
-        $curl->getOptions()
-            ->set(CURLOPT_RETURNTRANSFER, true)
-            ->set(CURLOPT_HEADER, true);
-
-        $headers = [];
-        $timeout = $this->getOption('timeout');
-        if ($curlOptions = $this->getOption('curl_options')) {
-            foreach ((array) $curlOptions as $key => $value) {
-                if (in_array($key, [CURLOPT_POSTFIELDS, CURLOPT_RETURNTRANSFER, CURLOPT_HEADER])) {
-                    throw new \InvalidArgumentException(sprintf('Forbidden CURLOPT_XXX option %d', $key));
-                }
-                if (CURLOPT_TIMEOUT == $key) {
-                    $timeout = $value;
-                    continue;
-                }
-                if (CURLOPT_HTTPHEADER == $key) {
-                    $headers = (array)$value;
-                    continue;
-                }
-                $curl->getOptions()->set($key, $value);
-            }
-        }
-        
-        switch ($this->mode)
-        {
-            case 'multipart':
-                // header automatique
-                // $headers[] = 'Content-Type:multipart/form-data';
-                $curl->getOptions()->set(CURLOPT_POSTFIELDS, (array)$this->postFields);
-                break;
-        }
-
-        if (!empty($headers)) {
-            $curl->getOptions()->set(CURLOPT_HTTPHEADER, $headers);
-        }
-        
-        if ($timeout) {
-            $curl->getOptions()->set(CURLOPT_TIMEOUT, $timeout);
-        }
-            
-        return $curl;
-    }
-    
-    /**
-     * Execute the request.
-     * @throws CurlException
-     * @throws \Quazardous\PriceministerWs\RuntimeException
+     * Create the response.
+     * @param int $code
+     * @param string $header
+     * @param string $body
+     * @throws RuntimeException
      * @throws ApiException
+     * @throws \Quazardous\PriceministerWs\RuntimeException
      * @return \Quazardous\PriceministerWs\Response\BasicResponse
      */
-    public function execute() {
-        $curl = $this->getCurlRequest();
-        $curlResponse = $curl->send();
+    public function createResponse($code, $header, $body) {
         
-        if ($curlResponse->hasError()) {
-            $error = $curlResponse->getError();
-            throw new CurlException($error ? $error->getMessage() : 'Unkown exception', $error ? $error->getCode() : null);
-        }
-        
-        $code = $curlResponse->getInfo(CURLINFO_HTTP_CODE);
-        
-        $content = $curlResponse->getContent();
-        
-        $header_size = $curlResponse->getInfo(CURLINFO_HEADER_SIZE);
-        
-        $header = substr($content, 0, $header_size);
-        $body = substr($content, $header_size);
-        $basic = new BasicResponse($header, $body);
-        
+        $response = new BasicResponse($code, $header, $body);
         $start = substr($body, 0, 256);
         
         $matches = null;
@@ -272,16 +220,17 @@ abstract class AbstractRequest {
                     $details[] = (string) $detail;
                 }
             }
-            throw new ApiException((string)$xml->error->message, (string)$xml->error->type, (string)$xml->error->code, $details, $basic);
+            throw new ApiException((string)$xml->error->message, (string)$xml->error->type, (string)$xml->error->code, $details, $response);
         }
         
-        if ($code != 200) {
+        // TODO remove ?
+        if ($response->getCode() != 200) {
             $e = new RuntimeException('HTTP code is not 200 (' . $code . ')', RuntimeException::HTTP_CODE_NOT_200);
-            $e->setResponse($basic);
+            $e->setResponse($response);
             throw $e;
         }
         
-        return $basic;
+        return $response;
     }
     
     /**
