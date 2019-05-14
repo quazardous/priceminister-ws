@@ -12,6 +12,9 @@ https://developer.fr.shopping.rakuten.com/blog/fr/product-listing-secure/
 ### CategoryMap
 https://developer.fr.shopping.rakuten.com/blog/fr/category-map/
 
+### GetNewSales
+https://developer.fr.shopping.rakuten.com/blog/fr/documentation/new-sales/get-new-sales/
+
 ### GetCurrentSales
 https://developer.fr.shopping.rakuten.com/blog/fr/documentation/post-confirmation-of-sale/get-current-sales/
 
