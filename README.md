@@ -2,7 +2,7 @@
 
 ~~Ongoing~~ Nearly done work to access Priceminister Rakuten Webservices.
 
-https://developer.fr.shopping.rakuten.com/blog/
+https://developer.fr.shopping.rakuten.com/blog/fr/
 
 ## Working API functions
 
