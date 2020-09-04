@@ -74,7 +74,7 @@ class BasicResponse {
      */
     public function getBodyAsSimpleXmlElement() {
         if (!$this->xml) {
-            $xml = simplexml_load_string($this->getSanitizedBody(), \SimpleXMLElement::class, LIBXML_NOCDATA);
+            $xml = simplexml_load_string($this->getSanitizedBody(), \SimpleXMLElement::class, LIBXML_NOCDATA | LIBXML_PARSEHUGE);
             if ($xml === false) {
                 throw new RuntimeException('Response content is no valid XML', RuntimeException::NO_VALID_XML);
             }
