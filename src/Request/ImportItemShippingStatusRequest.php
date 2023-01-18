@@ -5,7 +5,7 @@ namespace Quazardous\PriceministerWs\Request;
  * @link https://global.fr.shopping.rakuten.com/developpeur/confirmer-lenvoi-des-commandes-importitemshippingstatus/
  *
  */
-class ImportItemShippingStatusRequest extends AbstractStockRequest {
+class ImportItemShippingStatusRequest extends AbstractSalesRequest {
     use HasMultipartFileRequestTrait;
 
     protected $mode = 'multipart';
