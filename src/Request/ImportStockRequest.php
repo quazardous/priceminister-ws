@@ -2,7 +2,7 @@
 namespace Quazardous\PriceministerWs\Request;
 
 /**
- * @link https://developer.fr.shopping.rakuten.com/blog/fr/documentation/inventory-management/import-csv/inventory-import/
+ * @link https://global.fr.shopping.rakuten.com/developpeur/87040/
  *
  */
 class ImportStockRequest extends AbstractStockRequest {

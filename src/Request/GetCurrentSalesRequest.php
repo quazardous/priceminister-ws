@@ -2,12 +2,12 @@
 namespace Quazardous\PriceministerWs\Request;
 
 /**
- * @link https://developer.fr.shopping.rakuten.com/blog/fr/documentation/post-confirmation-of-sale/get-current-sales/
+ * @link https://global.fr.shopping.rakuten.com/developpeur/liste-des-commandes-en-cours-getcurrentsales/
  *
  */
 class GetCurrentSalesRequest extends AbstractSalesRequest {
     protected $parameters = [
         'action' => 'getcurrentsales',
-        'version' => '2017-08-07',
+        'version' => '2021-10-29',
     ];
 }
