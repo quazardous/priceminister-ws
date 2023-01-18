@@ -6,15 +6,12 @@ namespace Quazardous\PriceministerWs\Request;
  *
  */
 class ImportStockRequest extends AbstractStockRequest {
+    use HasMultipartFileRequestTrait;
+    
     protected $mode = 'multipart';
     
     protected $parameters = [
         'action' => 'import',
         'version' => '2010-09-20',
     ];
-    
-    public function setFile($filename)
-    {
-        $this->addPostField('file', new \CURLFile($filename));
-    }
 }
